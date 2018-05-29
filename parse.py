@@ -1,6 +1,7 @@
 import os
 import sys
 import matplotlib.pyplot as plt
+import numpy as np
 from dateutil.parser import parse
 from bs4 import BeautifulSoup
 
@@ -16,7 +17,7 @@ soup_salesall = BeautifulSoup(abs_salesall_path, 'html.parser')
 summary_data  = {}
 salesall_data = {}
 
-# Parse summary
+# Parse summary #
 summary_table = soup_summary.find("table");
 
 # Iterate through all summary rows, omitting header row
@@ -29,7 +30,7 @@ for row in summary_table.find_all('tr')[1:]:
     if ":" not in script_name:
         summary_data[script_name] = script_total_profit
 
-# Parse salesall
+# Parse salesall #
 for table in soup_salesall.find_all("table"):
     for row in table.find_all('tr')[1:]:
         row_data = row.find_all('td')
@@ -49,25 +50,37 @@ for table in soup_salesall.find_all("table"):
             # Add row sales data to dictionary
             salesall_data[script_name].append((sale_date, est_profit))
 
-def plot_summary():
-    # Plot bar chart
-    plt.style.use('seaborn')
-    plt.bar(range(len(summary_data)), summary_data.values(), align='center')
-    plt.xticks(range(len(summary_data)), summary_data.keys())
-
-    # Prevent labels overlapping
-    plt.gcf().autofmt_xdate()
-    plt.show()
-
-    # Plot pie chart
+def plot_summary_pie_chart():
+    plt.figure(figsize=(8, 6))
     patches, texts, atexts = plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%')
     plt.legend(patches, summary_data.keys())
     plt.tight_layout()
     plt.axis('equal')
-    plt.show()
+    plt.savefig('output/salessum_pie.svg')
+
+def plot_summary_bar_chart():
+    plt.figure(figsize=(12, 10))
+    plt.bar(range(len(summary_data)), summary_data.values(), align='center', color='c')
+    plt.xticks(range(len(summary_data)), summary_data.keys())
+    plt.gcf().autofmt_xdate()
+    plt.savefig('output/salessum_bar.svg')
 
 def plot_salesall():
-    pass
+    plt.figure(figsize=(12, 10))
 
-# plot_summary()
+    for script in salesall_data:
+        vals = salesall_data[script]
+        raw_dates   = [i[0] for i in vals]
+        raw_profits = [i[1] for i in vals]
+        cumulative_profits = np.cumsum(raw_profits)
+        plt.plot(raw_dates, cumulative_profits, '-o', ms=3, label=script)
+        plt.gcf().autofmt_xdate()
+
+    plt.xlabel("Date")
+    plt.ylabel("Cumulative profit ($)")
+    plt.legend(loc='upper left');
+    plt.savefig('output/salesall.svg')
+
+plot_summary_bar_chart()
+plot_summary_pie_chart()
 plot_salesall()
