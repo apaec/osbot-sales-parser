@@ -81,6 +81,27 @@ def plot_salesall():
     plt.legend(loc='upper left');
     plt.savefig('output/salesall.svg')
 
+def plot_salestotal():
+    plt.figure(figsize=(12, 10))
+
+    combined_data = []
+
+    for script in salesall_data:
+        combined_data.extend(salesall_data[script])
+
+    combined_data_sorted = sorted(combined_data, key=lambda s: s[0])
+    raw_dates   = [i[0] for i in combined_data_sorted]
+    raw_profits = [i[1] for i in combined_data_sorted]
+    cumulative_profits = np.cumsum(raw_profits)
+    plt.plot(raw_dates, cumulative_profits, '-oc', ms=3)
+    plt.gcf().autofmt_xdate()
+
+    plt.xlabel("Date")
+    plt.ylabel("Cumulative net profit ($)")
+    plt.legend(loc='upper left');
+    plt.savefig('output/salestotal.svg')
+
 plot_summary_bar_chart()
 plot_summary_pie_chart()
 plot_salesall()
+plot_salestotal()
