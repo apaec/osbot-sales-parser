@@ -5,11 +5,14 @@ import numpy as np
 from dateutil.parser import parse
 from bs4 import BeautifulSoup
 
+summary_file = "summary.html"
+salesall_file = "salesall.html"
+
 def parse_summary():
 
     summary_data = {}
 
-    rel_summary_path  = 'data/summary.html'
+    rel_summary_path  = "data/" + summary_file
     abs_summary_path  = open(os.path.join(os.path.dirname(__file__), rel_summary_path), 'r')
 
     soup_summary  = BeautifulSoup(abs_summary_path , 'html.parser')
@@ -25,14 +28,14 @@ def parse_summary():
         if ":" not in script_name:
             summary_data[script_name] = script_total_profit
 
-    print("Successfully parsed summary.html")
+    print("Successfully parsed " + summary_file)
     return summary_data
 
 def parse_salesall():
 
     salesall_data = {}
 
-    rel_salesall_path = 'data/salesall.html'
+    rel_salesall_path = "data/" + salesall_file
     abs_salesall_path = open(os.path.join(os.path.dirname(__file__), rel_salesall_path), 'r')
 
     soup_salesall = BeautifulSoup(abs_salesall_path, 'html.parser')
@@ -55,12 +58,13 @@ def parse_salesall():
 
                 # Add row sales data to dictionary
                 salesall_data[script_name].append((sale_date, est_profit))
-    print("Successfully parsed salesall.html")
+    print("Successfully parsed " + salesall_file)
     return salesall_data
 
 def plot_summary_pie_chart(summary_data, width=8, height=6):
+    colours = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'slategrey', 'lightgreen', 'lightsalmon', 'burlywood', 'plum', 'cadetblue', 'blanchedalmond']
     plt.figure(figsize=(width, height))
-    plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%')
+    plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%', colors=colours)
     plt.tight_layout()
     plt.axis('equal')
     plt.savefig('output/salessum_pie.svg')
@@ -72,6 +76,8 @@ def plot_summary_bar_chart(summary_data, width=12, height=10):
     plt.xticks(range(len(summary_data)), summary_data.keys())
     plt.gcf().autofmt_xdate()
     plt.minorticks_on()
+    plt.xlabel("Script")
+    plt.ylabel("Net profit ($)")
     plt.grid(which='major', linestyle='-',linewidth=1.25)
     plt.grid(which='minor', linestyle='--')
     plt.savefig('output/salessum_bar.svg')
@@ -120,8 +126,11 @@ def plot_salestotal(salesall_data, width=12, height=10):
     print("Saved all sales combined plot")
 
 summary_data = parse_summary()
-salesall_data = parse_salesall()
+
 plot_summary_bar_chart(summary_data)
 plot_summary_pie_chart(summary_data)
+
+salesall_data = parse_salesall()
+
 plot_salesall(salesall_data)
 plot_salestotal(salesall_data)
