@@ -19,3 +19,4 @@ A Python tool for visualising OSBot sales data. Parses HTML from 'sales summary'
 3. Save HTML from https://osbot.org/mvc/scripters/salesall as salesall.html in the data directory
 
 4. Run the Python script with: `python parse.py`
+5. Once script has terminated, see output directory for generated plots
