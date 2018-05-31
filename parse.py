@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 def parse_summary():
 
-    summary_data  = {}
+    summary_data = {}
 
     rel_summary_path  = 'data/summary.html'
     abs_summary_path  = open(os.path.join(os.path.dirname(__file__), rel_summary_path), 'r')
@@ -71,6 +71,9 @@ def plot_summary_bar_chart(summary_data, width=12, height=10):
     plt.bar(range(len(summary_data)), summary_data.values(), align='center', color='c')
     plt.xticks(range(len(summary_data)), summary_data.keys())
     plt.gcf().autofmt_xdate()
+    plt.minorticks_on()
+    plt.grid(which='major', linestyle='-',linewidth=1.25)
+    plt.grid(which='minor', linestyle='--')
     plt.savefig('output/salessum_bar.svg')
     print("Saved sale summary bar chart")
 
@@ -85,6 +88,9 @@ def plot_salesall(salesall_data, width=12, height=10):
         plt.plot(raw_dates, cumulative_profits, '-o', ms=3, label=script)
         plt.gcf().autofmt_xdate()
 
+    plt.minorticks_on()
+    plt.grid(which='major', linestyle='-',linewidth=1.25)
+    plt.grid(which='minor', linestyle='--')
     plt.xlabel("Date")
     plt.ylabel("Cumulative profit ($)")
     plt.legend(loc='upper left');
@@ -105,7 +111,9 @@ def plot_salestotal(salesall_data, width=12, height=10):
     cumulative_profits = np.cumsum(raw_profits)
     plt.plot(raw_dates, cumulative_profits, '-oc', ms=3)
     plt.gcf().autofmt_xdate()
-
+    plt.minorticks_on()
+    plt.grid(which='major', linestyle='-',linewidth=1.25)
+    plt.grid(which='minor', linestyle='--')
     plt.xlabel("Date")
     plt.ylabel("Cumulative net profit ($)")
     plt.savefig('output/salestotal.svg')
