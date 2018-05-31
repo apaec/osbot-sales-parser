@@ -106,3 +106,4 @@ venv.bak/
 # Project specific data/output files
 *.html
 *.svg
+*.png
