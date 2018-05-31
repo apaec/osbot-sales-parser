@@ -5,7 +5,7 @@ import numpy as np
 from dateutil.parser import parse
 from bs4 import BeautifulSoup
 
-summary_file = "summary_sample.html"
+summary_file = "summary.html"
 salesall_file = "salesall.html"
 
 default_file_format = "png"
@@ -74,6 +74,8 @@ def plot_summary_pie_chart(summary_data, width=8, height=6):
     plt.figure(figsize=(width, height))
     plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%', colors=colours)
     plt.tight_layout()
+    plt.title("Net profit distribution")
+    plt.gcf().subplots_adjust(top=0.95)
     plt.axis('equal')
     plt.savefig("output/salessum_pie." + output_file_format)
     print("Saved sale summary pie chart")
@@ -84,6 +86,7 @@ def plot_summary_bar_chart(summary_data, width=12, height=10):
     plt.xticks(range(len(summary_data)), summary_data.keys())
     plt.gcf().autofmt_xdate()
     plt.minorticks_on()
+    plt.title("Individual net profit")
     plt.xlabel("Script")
     plt.ylabel("Net profit ($)")
     plt.grid(which='major', linestyle='-',linewidth=1.25)
@@ -105,6 +108,7 @@ def plot_salesall(salesall_data, width=12, height=10):
     plt.minorticks_on()
     plt.grid(which='major', linestyle='-',linewidth=1.25)
     plt.grid(which='minor', linestyle='--')
+    plt.title("Individual cumulative profit")
     plt.xlabel("Date")
     plt.ylabel("Cumulative profit ($)")
     plt.legend(loc='upper left');
@@ -128,6 +132,7 @@ def plot_salestotal(salesall_data, width=12, height=10):
     plt.minorticks_on()
     plt.grid(which='major', linestyle='-',linewidth=1.25)
     plt.grid(which='minor', linestyle='--')
+    plt.title("Cumulative net profit")
     plt.xlabel("Date")
     plt.ylabel("Cumulative net profit ($)")
     plt.savefig("output/salestotal." + output_file_format)
