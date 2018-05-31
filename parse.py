@@ -5,8 +5,16 @@ import numpy as np
 from dateutil.parser import parse
 from bs4 import BeautifulSoup
 
-summary_file = "summary.html"
+summary_file = "summary_sample.html"
 salesall_file = "salesall.html"
+
+default_file_format = "png"
+output_file_format = sys.argv[1] if len(sys.argv) > 1 else default_file_format
+supported_filetypes = plt.gcf().canvas.get_supported_filetypes()
+
+if output_file_format not in supported_filetypes:
+    print("Given output file format unsupported. Exporting as ." + default_file_format + " instead")
+    output_file_format = default_file_format
 
 def parse_summary():
 
@@ -67,7 +75,7 @@ def plot_summary_pie_chart(summary_data, width=8, height=6):
     plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%', colors=colours)
     plt.tight_layout()
     plt.axis('equal')
-    plt.savefig('output/salessum_pie.svg')
+    plt.savefig("output/salessum_pie." + output_file_format)
     print("Saved sale summary pie chart")
 
 def plot_summary_bar_chart(summary_data, width=12, height=10):
@@ -80,7 +88,7 @@ def plot_summary_bar_chart(summary_data, width=12, height=10):
     plt.ylabel("Net profit ($)")
     plt.grid(which='major', linestyle='-',linewidth=1.25)
     plt.grid(which='minor', linestyle='--')
-    plt.savefig('output/salessum_bar.svg')
+    plt.savefig("output/salessum_bar." + output_file_format)
     print("Saved sale summary bar chart")
 
 def plot_salesall(salesall_data, width=12, height=10):
@@ -100,7 +108,7 @@ def plot_salesall(salesall_data, width=12, height=10):
     plt.xlabel("Date")
     plt.ylabel("Cumulative profit ($)")
     plt.legend(loc='upper left');
-    plt.savefig('output/salesall.svg')
+    plt.savefig("output/salesall." + output_file_format)
     print("Saved all sales individual plot")
 
 def plot_salestotal(salesall_data, width=12, height=10):
@@ -122,7 +130,7 @@ def plot_salestotal(salesall_data, width=12, height=10):
     plt.grid(which='minor', linestyle='--')
     plt.xlabel("Date")
     plt.ylabel("Cumulative net profit ($)")
-    plt.savefig('output/salestotal.svg')
+    plt.savefig("output/salestotal." + output_file_format)
     print("Saved all sales combined plot")
 
 summary_data = parse_summary()
