@@ -5,68 +5,77 @@ import numpy as np
 from dateutil.parser import parse
 from bs4 import BeautifulSoup
 
-rel_summary_path  = 'data/summary.html'
-abs_summary_path  = open(os.path.join(os.path.dirname(__file__), rel_summary_path), 'r')
+def parse_summary():
 
-rel_salesall_path = 'data/salesall.html'
-abs_salesall_path = open(os.path.join(os.path.dirname(__file__), rel_salesall_path), 'r')
+    summary_data  = {}
 
-soup_summary  = BeautifulSoup(abs_summary_path , 'html.parser')
-soup_salesall = BeautifulSoup(abs_salesall_path, 'html.parser')
+    rel_summary_path  = 'data/summary.html'
+    abs_summary_path  = open(os.path.join(os.path.dirname(__file__), rel_summary_path), 'r')
 
-summary_data  = {}
-salesall_data = {}
+    soup_summary  = BeautifulSoup(abs_summary_path , 'html.parser')
+    summary_table = soup_summary.find("table");
 
-# Parse summary #
-summary_table = soup_summary.find("table");
-
-# Iterate through all summary rows, omitting header row
-for row in summary_table.find_all('tr')[1:]:
-    row_data = row.find_all('td')
-    script_name = row_data[1].string
-    script_total_profit = float(row_data[2].string)
-
-    # Filter out the totals row
-    if ":" not in script_name:
-        summary_data[script_name] = script_total_profit
-
-# Parse salesall #
-for table in soup_salesall.find_all("table"):
-    for row in table.find_all('tr')[1:]:
+    # Iterate through all summary rows, omitting header row
+    for row in summary_table.find_all('tr')[1:]:
         row_data = row.find_all('td')
+        script_name = row_data[1].string
+        script_total_profit = float(row_data[2].string)
 
         # Filter out the totals row
-        if ":" not in row_data[0].string:
+        if ":" not in script_name:
+            summary_data[script_name] = script_total_profit
 
-            # Retrieve data from table
-            script_name = row_data[2].string.replace('Renewal: ', '')
-            est_profit  = float(row_data[3].string)
-            sale_date   = parse(row_data[4].string)
+    print("Successfully parsed summary.html")
+    return summary_data
 
-            # Initialise dictionary entry if needed
-            if script_name not in salesall_data:
-                salesall_data[script_name] = []
+def parse_salesall():
 
-            # Add row sales data to dictionary
-            salesall_data[script_name].append((sale_date, est_profit))
+    salesall_data = {}
 
-def plot_summary_pie_chart():
-    plt.figure(figsize=(8, 6))
-    patches, texts, atexts = plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%')
-    plt.legend(patches, summary_data.keys())
+    rel_salesall_path = 'data/salesall.html'
+    abs_salesall_path = open(os.path.join(os.path.dirname(__file__), rel_salesall_path), 'r')
+
+    soup_salesall = BeautifulSoup(abs_salesall_path, 'html.parser')
+
+    for table in soup_salesall.find_all("table"):
+        for row in table.find_all('tr')[1:]:
+            row_data = row.find_all('td')
+
+            # Filter out the totals row
+            if ":" not in row_data[0].string:
+
+                # Retrieve data from table
+                script_name = row_data[2].string.replace('Renewal: ', '')
+                est_profit  = float(row_data[3].string)
+                sale_date   = parse(row_data[4].string)
+
+                # Initialise dictionary entry if needed
+                if script_name not in salesall_data:
+                    salesall_data[script_name] = []
+
+                # Add row sales data to dictionary
+                salesall_data[script_name].append((sale_date, est_profit))
+    print("Successfully parsed salesall.html")
+    return salesall_data
+
+def plot_summary_pie_chart(summary_data, width=8, height=6):
+    plt.figure(figsize=(width, height))
+    plt.pie(summary_data.values(), labels=summary_data.keys(), autopct='%1.1f%%')
     plt.tight_layout()
     plt.axis('equal')
     plt.savefig('output/salessum_pie.svg')
+    print("Saved sale summary pie chart")
 
-def plot_summary_bar_chart():
-    plt.figure(figsize=(12, 10))
+def plot_summary_bar_chart(summary_data, width=12, height=10):
+    plt.figure(figsize=(width, height))
     plt.bar(range(len(summary_data)), summary_data.values(), align='center', color='c')
     plt.xticks(range(len(summary_data)), summary_data.keys())
     plt.gcf().autofmt_xdate()
     plt.savefig('output/salessum_bar.svg')
+    print("Saved sale summary bar chart")
 
-def plot_salesall():
-    plt.figure(figsize=(12, 10))
+def plot_salesall(salesall_data, width=12, height=10):
+    plt.figure(figsize=(width, height))
 
     for script in salesall_data:
         vals = salesall_data[script]
@@ -80,9 +89,10 @@ def plot_salesall():
     plt.ylabel("Cumulative profit ($)")
     plt.legend(loc='upper left');
     plt.savefig('output/salesall.svg')
+    print("Saved all sales individual plot")
 
-def plot_salestotal():
-    plt.figure(figsize=(12, 10))
+def plot_salestotal(salesall_data, width=12, height=10):
+    plt.figure(figsize=(width,height))
 
     combined_data = []
 
@@ -98,10 +108,12 @@ def plot_salestotal():
 
     plt.xlabel("Date")
     plt.ylabel("Cumulative net profit ($)")
-    plt.legend(loc='upper left');
     plt.savefig('output/salestotal.svg')
+    print("Saved all sales combined plot")
 
-plot_summary_bar_chart()
-plot_summary_pie_chart()
-plot_salesall()
-plot_salestotal()
+summary_data = parse_summary()
+salesall_data = parse_salesall()
+plot_summary_bar_chart(summary_data)
+plot_summary_pie_chart(summary_data)
+plot_salesall(salesall_data)
+plot_salestotal(salesall_data)
