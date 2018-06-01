@@ -95,13 +95,28 @@ def plot_summary_bar_chart(summary_data, width=12, height=10):
     print("Saved sale summary bar chart")
 
 def plot_salesall(salesall_data, width=12, height=10):
-    plt.figure(figsize=(width, height))
+    plt.figure("all_plot", figsize=(width, height))
 
+    # Plot script data in individual axis
     for script in salesall_data:
         vals = salesall_data[script]
         raw_dates   = [i[0] for i in vals]
         raw_profits = [i[1] for i in vals]
         cumulative_profits = np.cumsum(raw_profits)
+
+        plt.figure(figsize=(width, height))
+        plt.plot(raw_dates, cumulative_profits, '-o', ms=3, label=script)
+        plt.gcf().autofmt_xdate()
+        plt.minorticks_on()
+        plt.grid(which='major', linestyle='-',linewidth=1.25)
+        plt.grid(which='minor', linestyle='--')
+        plt.title(script + " cumulative profit")
+        plt.xlabel("Date")
+        plt.ylabel("Cumulative profit ($)")
+        plt.savefig("output/salesall_" + script.replace(' ', '_').lower() + '.' + output_file_format)
+        print("Saved individual plot for " + script)
+
+        plt.figure("all_plot")
         plt.plot(raw_dates, cumulative_profits, '-o', ms=3, label=script)
         plt.gcf().autofmt_xdate()
 
